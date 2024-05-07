@@ -3,23 +3,22 @@ package ru.yandex.practicum.filmorate.controller;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.data.FilmRepository;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/films")
 @Slf4j
 public class FilmController {
-    private final Map<Long, Film> films = new HashMap<>();
+    private final FilmRepository repository = new FilmRepository();
 
     @GetMapping
     public Collection<Film> getFilms() {
-        return films.values();
+        return repository.valueFilms();
     }
 
     @PostMapping
@@ -30,7 +29,7 @@ public class FilmController {
 
         } else if (film.getDescription().length() > 200) {
             log.error("Указанно слишком длинное описание фильма");
-            throw new ValidationException("максимальная длина описания — 200 символов;");
+            throw new ValidationException("максимальная длина описания — 200 символов");
 
         } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
             log.error("Указанна неправильная дата релиза фильма ");
@@ -43,7 +42,7 @@ public class FilmController {
 
         film.setId(getNextId());
         log.debug("Создан и присвоен id {}", film.getId());
-        films.put(film.getId(), film);
+        repository.putFilms(film.getId(), film);
         log.info("Создан и сохранен новый фильм");
         return film;
     }
@@ -54,8 +53,8 @@ public class FilmController {
             log.error("Не указан id");
             throw new ValidationException("Id должен быть указан");
         }
-        if (films.containsKey(newFilm.getId())) {
-            Film oldFilm = films.get(newFilm.getId());
+        if (repository.containsFilmId(newFilm.getId())) {
+            Film oldFilm = repository.getFilm(newFilm.getId());
 
             if (oldFilm.getDescription().isBlank()) {
                 log.error("Пустое описание фильма");
@@ -63,7 +62,7 @@ public class FilmController {
 
             } else if (oldFilm.getDescription().length() > 200) {
                 log.error("Указанно слишком длинное описание фильма");
-                throw new ValidationException("максимальная длина описания — 200 символов;");
+                throw new ValidationException("максимальная длина описания — 200 символов");
             }
 
             if (newFilm.getDuration() != null) {
@@ -87,12 +86,12 @@ public class FilmController {
 
         } else {
             log.error("Указан несуществующий id {}", newFilm.getId());
-            throw new ValidationException("Фильм с указанным Id: " + newFilm.getId() + " не найден");
+            throw new ValidationException("Фильм с указанным Id не найден");
         }
     }
 
     private long getNextId() {
-        long currentMaxId = films.keySet()
+        long currentMaxId = repository.getFilmsId()
                 .stream()
                 .mapToLong(id -> id)
                 .max()

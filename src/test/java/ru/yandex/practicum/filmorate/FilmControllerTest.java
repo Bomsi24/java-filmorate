@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -26,9 +27,10 @@ class FilmControllerTest {
     @Test
     public void testCreateFilmWithNullName() {
         film.setName(null);
-        assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
+                filmController.create(film));
+
+        Assertions.assertEquals("Название фильма не может быть пустым", thrown.getMessage());
     }
 
     @Test
@@ -36,41 +38,50 @@ class FilmControllerTest {
         film.setDescription("Это очень длинное описание,Это очень длинное описание,Это очень длинное описание," +
                 "Это очень длинное описание,Это очень длинное описание,Это очень длинное описание," +
                 "Это очень длинное описание, Это очень длинное описание");
-        assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
+                filmController.create(film));
+
+        Assertions.assertEquals("максимальная длина описания — 200 символов", thrown.getMessage());
     }
 
     @Test
     public void testCreateFilmWithInvalidReleaseDate() {
         film.setReleaseDate(LocalDate.of(1800, 1, 1));
-        assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
+                filmController.create(film));
+
+        Assertions.assertEquals("дата релиза не должна быть раньше раньше 28 декабря 1895 года",
+                thrown.getMessage());
     }
 
     @Test
     public void testCreateFilmWithNegativeDuration() {
         film.setDuration(-10);
-        assertThrows(ValidationException.class, () -> {
-            filmController.create(film);
-        });
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
+                filmController.create(film));
+
+        Assertions.assertEquals("продолжительность фильма должна быть положительным числом",
+                thrown.getMessage());
     }
 
     @Test
     public void testUpdateIdNotSpecified() {
         filmController.create(film);
         film.setId(null);
-        assertThrows(ValidationException.class, () ->
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
                 filmController.update(film));
+
+        Assertions.assertEquals("Id должен быть указан", thrown.getMessage());
     }
 
     @Test
     public void testUpdateEmptyDescription() {
         filmController.create(film);
         film.setDescription("");
-        assertThrows(ValidationException.class, () ->
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
                 filmController.update(film));
+
+        Assertions.assertEquals("Описание фильма не может быть пустым", thrown.getMessage());
     }
 
     @Test
@@ -79,16 +90,20 @@ class FilmControllerTest {
         film.setDescription("Это очень длинное описание,Это очень длинное описание,Это очень длинное описание," +
                 "Это очень длинное описание,Это очень длинное описание,Это очень длинное описание," +
                 "Это очень длинное описание, Это очень длинное описание");
-        assertThrows(ValidationException.class, () -> {
-            filmController.update(film);
-        });
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
+                filmController.update(film));
+
+        Assertions.assertEquals("максимальная длина описания — 200 символов", thrown.getMessage());
     }
 
     @Test
     public void testUpdateNonExistentId() {
         filmController.create(film);
         film.setId(3L);
-        assertThrows(ValidationException.class, () ->
+        ValidationException thrown = assertThrows(ValidationException.class, () ->
                 filmController.update(film));
+
+        Assertions.assertEquals("Фильм с указанным Id не найден", thrown.getMessage());
     }
+
 }
