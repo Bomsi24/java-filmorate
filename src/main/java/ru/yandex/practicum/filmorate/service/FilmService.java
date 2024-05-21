@@ -130,7 +130,7 @@ public class FilmService {
             return oldFilm;
 
         } else {
-            log.error("Указан несуществующий id: {}", newFilm.getId());
+            log.error("Указан несуществующий id:{}", newFilm.getId());
             throw new NotFoundException("Фильм с указанным Id не найден");
         }
     }
