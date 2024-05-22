@@ -1,31 +1,35 @@
-package ru.yandex.practicum.filmorate.data;
+package ru.yandex.practicum.filmorate.storage;
 
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 
 import java.util.*;
 
-@Repository
-public class FilmRepository {
-
+@Component
+public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Long, Film> films = new HashMap<>();
 
+    @Override
     public void putFilms(Long id, Film film) {
         films.put(id, film);
     }
 
-    public Collection<Film> valueFilms() {
-        return films.values();
+    @Override
+    public List<Film> valueFilms() {
+        return new ArrayList<>(films.values());
     }
 
+    @Override
     public boolean containsFilmId(Long id) {
         return films.containsKey(id);
     }
 
+    @Override
     public Film getFilm(Long id) {
         return films.get(id);
     }
 
+    @Override
     public Set<Long> getFilmsId() {
         return films.keySet();
     }
