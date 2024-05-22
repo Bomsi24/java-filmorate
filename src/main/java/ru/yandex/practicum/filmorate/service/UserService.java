@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -39,7 +38,6 @@ public class UserService {
         user.addFriends(friendId);
         log.info("Добавлен пользователь 1:{}, 2:{}", user.getFriends(), userFriend.getFriends());
         return user;
-
     }
 
     public User deleteFriend(Long id, Long friendId) {
@@ -85,29 +83,6 @@ public class UserService {
     }
 
     public User create(User user) {
-        if (user.getEmail() == null || user.getEmail().isBlank()) {
-            log.error("Указана пустая почта");
-            throw new ValidationException("электронная почта не может быть пустой");
-
-        } else if (!(user.getEmail().contains("@"))) {
-            log.error("Указан неверный формат почты");
-            throw new ValidationException("электронная почта должна содержать символ @");
-
-        } else if (user.getLogin() == null || user.getLogin().isBlank() ||
-                user.getLogin().contains(" ")) {
-            log.error("неверно указан логин");
-            throw new ValidationException("логин не может быть пустым и содержать пробелы");
-
-        } else if (user.getBirthday().isAfter(LocalDate.of(2022, 1, 1))) {
-            log.error("указана неправильная дата рождения");
-            throw new ValidationException("дата рождения не может быть в будущем");
-        }
-
-        if (user.getName() == null || user.getName().isBlank()) {
-            log.info("Имя пользователя не указанно");
-            user.setName(user.getLogin());
-        }
-
         user.setId(getNextId());
         log.debug("Создан и присвоен id{}", user.getId());
         userStorage.putUsers(user.getId(), user);
@@ -122,10 +97,6 @@ public class UserService {
         }
         if (userStorage.containsUserId(newUser.getId())) {
             User oldUser = userStorage.getUser(newUser.getId());
-            if ((newUser.getEmail() == null || newUser.getEmail().isBlank())) {
-                log.error("Указан некорректный эмейл");
-                throw new ValidationException("Неверный эмейл");
-            }
             if (isDuplicatedUserEmail(newUser)) {
                 log.error("Указана существующая почта");
                 throw new ValidationException("Указан существующий эмейл");
@@ -154,7 +125,7 @@ public class UserService {
         }
     }
 
-    public Collection<User> getUser() {
+    public List<User> getUser() {
         return userStorage.valueUsers();
     }
 

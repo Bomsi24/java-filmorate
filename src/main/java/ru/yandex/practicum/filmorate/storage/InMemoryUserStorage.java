@@ -13,8 +13,8 @@ public class InMemoryUserStorage implements UserStorage {
         users.put(id, user);
     }
 
-    public Collection<User> valueUsers() {
-        return users.values();
+    public List<User> valueUsers() {
+        return new ArrayList<>(users.values());
     }
 
     public boolean containsUserId(Long id) {

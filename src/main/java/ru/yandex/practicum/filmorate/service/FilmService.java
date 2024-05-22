@@ -10,8 +10,6 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
 
-import java.time.LocalDate;
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -69,25 +67,9 @@ public class FilmService {
     }
 
     public Film create(Film film) {
-        if (film.getName() == null || film.getName().isBlank()) {
-            log.error("Указанно пустое название фильма");
-            throw new ValidationException("Название фильма не может быть пустым");
-
-        } else if (film.getDescription().length() > 200) {
-            log.error("Указанно слишком длинное описание фильма");
-            throw new ValidationException("максимальная длина описания — 200 символов");
-
-        } else if (film.getReleaseDate().isBefore(LocalDate.of(1895, 12, 28))) {
-            log.error("Указанна неправильная дата релиза фильма ");
-            throw new ValidationException("дата релиза не должна быть раньше раньше 28 декабря 1895 года");
-
-        } else if (film.getDuration() < 1) {
-            log.error("Указана отрицательная продолжительность фильма");
-            throw new ValidationException("продолжительность фильма должна быть положительным числом");
-        }
-
         film.setId(getNextId());
         log.debug("Создан и присвоен id {}", film.getId());
+
         filmStorage.putFilms(film.getId(), film);
         log.info("Создан и сохранен новый фильм");
         return film;
@@ -100,15 +82,6 @@ public class FilmService {
         }
         if (filmStorage.containsFilmId(newFilm.getId())) {
             Film oldFilm = filmStorage.getFilm(newFilm.getId());
-
-            if (oldFilm.getDescription().isBlank()) {
-                log.error("Пустое описание фильма");
-                throw new ValidationException("Описание фильма не может быть пустым");
-
-            } else if (oldFilm.getDescription().length() > 200) {
-                log.error("Указанно слишком длинное описание фильма");
-                throw new ValidationException("максимальная длина описания — 200 символов");
-            }
 
             if (newFilm.getDuration() != null) {
                 oldFilm.setDuration(newFilm.getDuration());
@@ -135,7 +108,7 @@ public class FilmService {
         }
     }
 
-    public Collection<Film> getFilms() {
+    public List<Film> getFilms() {
         return filmStorage.valueFilms();
     }
 
