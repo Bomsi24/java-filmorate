@@ -16,7 +16,7 @@ SELECT friend.name, f.status_friend
 FROM user AS u
 JOIN friend_table AS table ON table.user_id = u.user_id
 JOIN friends AS f ON f.friend_id = table.friend_id
-JOIN user AS friend ON f.friend_id = friend.user_id
+JOIN user AS friend ON f.user_id = friend.user_id
 WHERE u.email = 'super@mail.ru';
 ```
 Вывод названия жанров у фильма Аврора.
