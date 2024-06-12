@@ -6,7 +6,7 @@
 4. Лайки: Эта таблица хранит id пользователей которые положительно оценили фильм.
 5. Жанры: Эта таблица хранит различные жанры фильмов.
 
-![База данных Filmorate](https://i.ibb.co/SVtWYLw/filmorate.png)
+![База данных Filmorate](https://i.ibb.co/S5k2164/film.jpg)
 
 ### Примеры запросов к базе данных:
 
@@ -31,7 +31,7 @@ WHERE f.name = 'Аврора';
 ```SQL
 SELECT f.name, COUNT(l.id_user)
 FROM film AS f
-JOIN like AS l ON l.like_id = f.like_id
+JOIN film_like AS l ON l.film_id = f.film_id
 GROUP BY f.name
 ORDER BY COUNT(l.id_user) DESC;
 ```
