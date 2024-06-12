@@ -29,9 +29,10 @@ WHERE f.name = 'Аврора';
 ```
 Вывод названия фильмов и количества лайков у каждого фильма, отсортированные по убыванию лайков.
 ```SQL
-SELECT f.name, COUNT(l.id_user)
+SELECT f.name, COUNT(l.id_user) AS like_count
 FROM film AS f
-JOIN film_like AS l ON l.film_id = f.film_id
+JOIN like_film AS likf ON likf.film_id = f.film_id
+JOIN like AS l ON likf.like_id = l.like_id
 GROUP BY f.name
-ORDER BY COUNT(l.id_user) DESC;
+ORDER BY like_count DESC;
 ```
