@@ -14,8 +14,8 @@
 ```SQL
 SELECT user_friend.name, f.status_friend
 FROM user AS u
-JOIN user_friend AS table ON table.user_id = u.user_id
-JOIN friend AS f ON f.friend_id = table.friend_id
+JOIN user_friend AS uf ON uf.user_id = u.user_id
+JOIN friends AS f ON f.friend_id = uf.friend_id
 JOIN user AS user_friend ON f.user_id = user_friend.user_id
 WHERE u.email = 'super@mail.ru';
 ```
