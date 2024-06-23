@@ -21,7 +21,7 @@ public final class FilmMapper {
         if (oldFilm.hashReleaseDate()) {
             film.setReleaseDate(oldFilm.getReleaseDate());
         }
-        if(film.hashMpa()) {
+        if (film.hashMpa()) {
             film.setMpa(oldFilm.getMpa());
         }
         return film;
