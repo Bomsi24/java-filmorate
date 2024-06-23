@@ -68,7 +68,7 @@ public class UserDbStorageTests {
     void allUsersTest() {
         final List<User> users = userDbStorage.allUsers();
 
-        assertEquals(3, users.size());
+        assertEquals(4, users.size());
         assertThat(users.get(0)).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(users.get(0)).hasFieldOrPropertyWithValue("email", "user1@yandex.ru");
         assertThat(users.get(0)).hasFieldOrPropertyWithValue("login", "user1");
