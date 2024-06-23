@@ -10,29 +10,27 @@
 
 ### Примеры запросов к базе данных:
 
-Выводит имена друзей и статус их дружбы для пользователя с имейл адресом super@mail.ru.
+Выводит имена друзей для пользователя с имейл адресом super@mail.ru.
 ```SQL
-SELECT user_friend.name, f.status_friend
-FROM user AS u
-JOIN user_friend AS uf ON uf.user_id = u.user_id
-JOIN friends AS f ON f.friend_id = uf.friend_id
-JOIN user AS user_friend ON f.user_id = user_friend.user_id
+SELECT friend.name AS friend_name
+FROM users AS u
+JOIN friends AS f ON f.user1_id = u.user_id
+JOIN users AS friend ON friend.user_id = f.user2_id
 WHERE u.email = 'super@mail.ru';
 ```
 Вывод названия жанров у фильма Аврора.
 ```SQL
 SELECT g.name
-FROM film as f
-JOIN genre_film AS genf ON genf.film_id = f.film_id
-JOIN genre AS g ON g.genre_id = f.genre_id
+FROM films as f
+JOIN films_genres AS genf ON genf.film_id = f.film_id
+JOIN genres AS g ON g.genre_id = genf.genre_id
 WHERE f.name = 'Аврора';
 ```
 Вывод названия фильмов и количества лайков у каждого фильма, отсортированные по убыванию лайков.
 ```SQL
-SELECT f.name, COUNT(l.id_user) AS like_count
-FROM film AS f
-JOIN like_film AS likf ON likf.film_id = f.film_id
-JOIN like AS l ON likf.like_id = l.like_id
+SELECT f.name, COUNT(l.user_id) AS like_count
+FROM films AS f
+JOIN likes AS l ON l.film_id = f.film_id
 GROUP BY f.name
 ORDER BY like_count DESC;
 ```
