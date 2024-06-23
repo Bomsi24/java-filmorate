@@ -22,7 +22,7 @@ WHERE u.email = 'super@mail.ru';
 ```SQL
 SELECT g.name
 FROM films as f
-JOIN films_genres AS genf ON genf.film_id = f.film_id
+JOIN films_genres AS fg ON fg.film_id = f.film_id
 JOIN genres AS g ON g.genre_id = genf.genre_id
 WHERE f.name = 'Аврора';
 ```
