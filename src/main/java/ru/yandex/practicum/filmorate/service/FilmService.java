@@ -72,7 +72,7 @@ public class FilmService {
             log.error("Пользователь не найден{}", userId);
             return new NotFoundException("Пользователь  не найден " + userId);
         });
-        if (!likeDbStorage.delete(filmId, userId)) {//удаляем лайки и проверяем удален ли лайк
+        if (!likeDbStorage.delete(filmId, userId)) {
             log.error("Лайк {} у фильма {} не удален", userId, filmId);
             throw new ValidationException("Лайк " + userId + " у фильма " +
                     film + " не удален");
