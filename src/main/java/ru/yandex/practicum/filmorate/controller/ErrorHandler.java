@@ -1,11 +1,13 @@
-package ru.yandex.practicum.filmorate.exception;
+package ru.yandex.practicum.filmorate.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import ru.yandex.practicum.filmorate.controller.ErrorResponse;
+import ru.yandex.practicum.filmorate.exception.InternalServerException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 
 @RestControllerAdvice
 public class ErrorHandler {
@@ -23,8 +25,8 @@ public class ErrorHandler {
     }
 
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    @ExceptionHandler
-    public ErrorResponse handleInternalServerErrorException(final Exception exception) {
+    @ExceptionHandler(value = {Exception.class,InternalServerException.class})
+    public ErrorResponse handleInternalServerErrorException(final InternalServerException exception) {
         return new ErrorResponse("Возникло исключение.", exception.getMessage());
     }
 }

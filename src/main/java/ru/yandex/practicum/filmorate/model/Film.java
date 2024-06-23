@@ -5,16 +5,18 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
-@AllArgsConstructor
+@Builder
 @NoArgsConstructor
+@AllArgsConstructor
 public class Film {
     private Long id;
     @NotBlank
@@ -28,13 +30,34 @@ public class Film {
     private LocalDate releaseDate;
     @Positive
     private Integer duration;
-    private Set<Long> likes = new HashSet<>();
+    private Mpa mpa;
+    List<Genre> genres = new ArrayList<>();
 
-    public void addLike(Long id) {
-        likes.add(id);
+    public void setOneGenres(Genre genre) {
+        genres.add(genre);
     }
 
-    public void deleteLike(Long id) {
-        likes.remove(id);
+    public boolean hasName() {
+        return !(name == null || name.isBlank());
+    }
+
+    public boolean hasDescription() {
+        return !(description == null || description.isBlank());
+    }
+
+    public boolean hashDuration() {
+        return !(duration == null || duration == 0);
+    }
+
+    public boolean hashReleaseDate() {
+        return !(releaseDate == null);
+    }
+
+    public boolean hashMpa() {
+        return !(mpa == null);
+    }
+
+    public boolean hashGenres() {
+        return !(genres == null || genres.isEmpty());
     }
 }
