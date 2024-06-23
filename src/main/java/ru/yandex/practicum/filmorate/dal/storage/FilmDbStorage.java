@@ -19,11 +19,9 @@ public class FilmDbStorage extends BaseDbStorage<Film> implements FilmStorage {
             "VALUES (?, ?, ?, ?)";
     private static final String UPDATE_QUERY = "UPDATE films SET name = ?, description = ?, " +
             "release_date = ?, duration = ? WHERE film_id = ?";
-    JdbcTemplate jdbcTemplate;
 
-    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper, JdbcTemplate jdbcTemplate) {
+    public FilmDbStorage(JdbcTemplate jdbc, RowMapper<Film> mapper) {
         super(jdbc, mapper, Film.class);
-        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Override

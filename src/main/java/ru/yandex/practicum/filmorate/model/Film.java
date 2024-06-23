@@ -31,7 +31,7 @@ public class Film {
     @Positive
     private Integer duration;
     private Mpa mpa;
-    List<Genre> genres = new ArrayList<>();
+    private List<Genre> genres = new ArrayList<>();
 
     public void setOneGenres(Genre genre) {
         genres.add(genre);

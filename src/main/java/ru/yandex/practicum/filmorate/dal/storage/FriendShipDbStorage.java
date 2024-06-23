@@ -29,8 +29,10 @@ public class FriendShipDbStorage extends BaseDbStorage<FriendShip> {
             "    AND f1.status_friend = 1 AND f2.status_friend = 1\n" +
             ") common_friends \n" +
             "ON users.user_id = common_friends.common_friend";
-    private static final String FIND_ALL_FRIENDS_BY_ID = "SELECT * FROM users WHERE user_id IN " +
-            "(SELECT user2_id FROM friends WHERE user1_id = ? AND status_friend = 1)";
+    private static final String FIND_ALL_FRIENDS_BY_ID = "SELECT u.*\n" +
+            "FROM users AS u\n" +
+            "JOIN friends AS f ON u.user_id = f.user2_id\n" +
+            "WHERE f.user1_id = ? AND f.status_friend = 1;";
     private final JdbcTemplate jdbcTemplate;
 
     public FriendShipDbStorage(JdbcTemplate jdbc, RowMapper<FriendShip> mapper, JdbcTemplate jdbcTemplate) {
