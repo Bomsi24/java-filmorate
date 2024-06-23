@@ -42,7 +42,7 @@ public class FilmGenreDbStorageTest {
     @Sql(scripts = {"/clear.sql", "/create.sql"})
     void saveGenreForFilmTest() {
         final Film film = filmDbStorage.getFilm(1L).get();
-        final Genre genre = filmGenreDbStorage.getGenre(1l).get();
+        final Genre genre = filmGenreDbStorage.getGenre(1L).get();
 
         filmGenreDbStorage.save(film, genre);
 
@@ -58,12 +58,12 @@ public class FilmGenreDbStorageTest {
     void allGenresTest() {
         final List<Genre> genres = filmGenreDbStorage.valueGenre();
 
-        assertEquals(6,  genres.size());
+        assertEquals(6, genres.size());
         assertThat(genres.get(0)).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(genres.get(0)).hasFieldOrPropertyWithValue("name", "Комедия");
 
-        assertThat( genres.get(1)).hasFieldOrPropertyWithValue("id", 2L);
-        assertThat( genres.get(1)).hasFieldOrPropertyWithValue("name", "Драма");
+        assertThat(genres.get(1)).hasFieldOrPropertyWithValue("id", 2L);
+        assertThat(genres.get(1)).hasFieldOrPropertyWithValue("name", "Драма");
 
     }
 
@@ -71,8 +71,8 @@ public class FilmGenreDbStorageTest {
     @Sql(scripts = {"/clear.sql", "/create.sql"})
     void getGenresByIdFilmTest() {
         final Film film = filmDbStorage.getFilm(1L).get();
-        final Genre genre = filmGenreDbStorage.getGenre(1l).get();
-        final Genre genre2 = filmGenreDbStorage.getGenre(2l).get();
+        final Genre genre = filmGenreDbStorage.getGenre(1L).get();
+        final Genre genre2 = filmGenreDbStorage.getGenre(2L).get();
 
         filmGenreDbStorage.save(film, genre);
         filmGenreDbStorage.save(film, genre2);
@@ -83,8 +83,8 @@ public class FilmGenreDbStorageTest {
         assertThat(genres.get(0)).hasFieldOrPropertyWithValue("id", 1L);
         assertThat(genres.get(0)).hasFieldOrPropertyWithValue("name", "Комедия");
 
-        assertThat( genres.get(1)).hasFieldOrPropertyWithValue("id", 2L);
-        assertThat( genres.get(1)).hasFieldOrPropertyWithValue("name", "Драма");
+        assertThat(genres.get(1)).hasFieldOrPropertyWithValue("id", 2L);
+        assertThat(genres.get(1)).hasFieldOrPropertyWithValue("name", "Драма");
     }
 
 }

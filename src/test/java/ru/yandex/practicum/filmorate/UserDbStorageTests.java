@@ -48,7 +48,8 @@ public class UserDbStorageTests {
     @Test
     @Sql(scripts = {"/clear.sql", "/create.sql"})
     void updateUserTest() {
-        final User user = generateUser("user3@yandex.ru", "user3", "User3 Name", LocalDate.of(1990, 03, 26));
+        final User user = generateUser("user3@yandex.ru",
+                "user3", "User3 Name", LocalDate.of(1990, 03, 26));
         user.setId(1L);
 
         userDbStorage.update(user);
