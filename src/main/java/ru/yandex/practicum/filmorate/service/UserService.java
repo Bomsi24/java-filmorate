@@ -3,146 +3,111 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.dal.mapper.UserMapper;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
+import ru.yandex.practicum.filmorate.model.FriendShip;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.dal.storage.FriendShipDbStorage;
+import ru.yandex.practicum.filmorate.dal.storage.UserDbStorage;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
-    private final InMemoryUserStorage userStorage;
+    private final UserDbStorage userDbStorage;
+    private final FriendShipDbStorage friendShipDbStorage;
 
     public User getUser(Long id) {
-        if (!userStorage.containsUserId(id)) {
-            log.error("Отсутствует пользователь");
-            throw new NotFoundException("Отсутствует пользователь");
-        }
-        return userStorage.getUser(id);
+        return checkUsers(id);
     }
 
-    public User addFriends(Long id, Long friendId) {
-        if (!(userStorage.containsUserId(id) && userStorage.containsUserId(friendId))) {
-            log.error("Отсутствует пользователь");
-            throw new NotFoundException("Отсутствует пользователь");
-        }
-        User user = userStorage.getUser(id);
-        User userFriend = userStorage.getUser(friendId);
-        log.info("Пользователи: 1{},2{}", user, userFriend);
+    public User addFriends(Long userId, Long friendId) {
+        User user = checkUsers(userId);
+        checkUsers(friendId);
 
-        userFriend.addFriends(id);
-        user.addFriends(friendId);
-        log.info("Добавлен пользователь 1:{}, 2:{}", user.getFriends(), userFriend.getFriends());
+        Optional<FriendShip> friendShip = friendShipDbStorage.findFriendShip(userId, friendId);
+        log.info("Проверяем друга{} ", friendShip);
+        if (friendShip.isPresent()) {
+            log.error("Пользователь: {} уже состоит в дружбе с пользователем: {}", friendId, userId);
+            throw new ValidationException("Пользователь: " + friendId
+                    + " уже состоит в дружбе с пользователем: " + userId);
+        }
+
+        FriendShip newFriendShip = new FriendShip(userId, friendId);
+        friendShipDbStorage.save(newFriendShip);
+        log.info("Пользователь {} добавлен в список друзей пользователя {}", friendId, userId);
+        log.info("Друзья {}", newFriendShip);
+
         return user;
     }
 
-    public User deleteFriend(Long id, Long friendId) {
-        if (!(userStorage.containsUserId(id) && userStorage.containsUserId(friendId))) {
-            throw new NotFoundException("Отсутствует пользователь");
-        }
-        User user = userStorage.getUser(id);
-        User userFriend = userStorage.getUser(friendId);
-        log.info("Пользователи: 1{},2{}", user, userFriend);
-
-        user.removeFriend(friendId);
-        userFriend.removeFriend(id);
-        log.info("Список друзей после удаления: user: {}, userFriend: {}",
-                user.getFriends(), userFriend.getFriends());
+    public User deleteFriend(Long userId, Long friendId) {
+        User user = checkUsers(userId);
+        checkUsers(friendId);
+        friendShipDbStorage.delete(userId, friendId);
         return user;
     }
 
     public List<User> allFriends(Long id) {
-        User user = userStorage.getUser(id);
-        if (user == null) {
-            throw new NotFoundException("Такого пользователя нет");
-        }
-        Set<Long> userFriends = user.getFriends();
-        log.info("Список друзей {}", userFriends);
+        log.info("Используем allFriends ");
+        checkUsers(id);
+        log.info("Возвращаем список друзей пользователя с id:{}", id);
+        log.info("Список друзей{}", friendShipDbStorage.getFriends(id));
 
-        return userFriends.stream()
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
+        return friendShipDbStorage.getFriends(id);
     }
 
-    public List<User> allMutualFriends(Long id, Long otherId) {
-        User user = userStorage.getUser(id);
-        User userFriend = userStorage.getUser(otherId);
-        if (user == null || userFriend == null) {
-            log.error("Нету одного из пользователей");
-            throw new NotFoundException("Нету одного из пользователей ");
-        }
+    public List<User> allMutualFriends(Long userId1, Long userId2) {
+        log.info("Используем allMutualFriends ");
+        checkUsers(userId1);
+        checkUsers(userId2);
 
-        return user.getFriends().stream()
-                .filter(idUser -> userFriend.getFriends().contains(idUser))
-                .map(userStorage::getUser)
-                .collect(Collectors.toList());
+        return friendShipDbStorage.getMutualFriends(userId1, userId2);
     }
 
     public User create(User user) {
-        user.setId(getNextId());
-        log.debug("Создан и присвоен id{}", user.getId());
-        userStorage.putUsers(user.getId(), user);
-        log.info("Создан и сохранен новый пользователь");
+        if (user.getEmail() == null || user.getEmail().isEmpty()) {
+            throw new ValidationException("Имейл должен быть указан");
+        }
+
+        Optional<User> newUser = userDbStorage.findByEmail(user.getEmail());
+        if (newUser.isPresent()) {
+            log.error("Почта{} уже используется", user.getEmail());
+            throw new ValidationException("Данная почта " + user.getEmail()
+                    + " уже используется");
+        }
+        userDbStorage.save(user);
+        log.info("Создан и сохранен новый пользователь {}", user.getId());
+
         return user;
     }
 
-    public User update(User newUser) {
-        if (newUser.getId() == null) {
-            log.error("Не указан id пользователя");
-            throw new ValidationException("Id должен быть указан");
+    public User update(User user) {
+        User oldUser = checkUsers(user.getId());
+        Optional<User> user1 = userDbStorage.findByEmail(user.getEmail());
+        if (user1.isPresent()) {
+            log.error("Почта{} уже используется", user.getEmail());
+            throw new ValidationException("Данная почта " + user.getEmail()
+                    + " уже используется");
         }
-        if (userStorage.containsUserId(newUser.getId())) {
-            User oldUser = userStorage.getUser(newUser.getId());
-            if (isDuplicatedUserEmail(newUser)) {
-                log.error("Указана существующая почта");
-                throw new ValidationException("Указан существующий эмейл");
-            }
-            if (newUser.getEmail() != null) {
-                log.info("Обновили эмейл");
-                oldUser.setEmail(newUser.getEmail());
-            }
-            if (newUser.getName() != null) {
-                log.info("Обновили имя пользователя");
-                oldUser.setName(newUser.getName());
-            }
-            if (newUser.getLogin() != null) {
-                log.info("Обновили логин");
-                oldUser.setLogin(newUser.getLogin());
-            }
-            if (newUser.getBirthday() != null) {
-                log.info("Обновили дату рождения");
-                oldUser.setBirthday(newUser.getBirthday());
-            }
 
-            return oldUser;
-        } else {
-            log.error("Не найден пользователь с id {}", newUser.getId());
-            throw new NotFoundException("Пользователь с id = " + newUser.getId() + " не найден");
-        }
+        User newUser = UserMapper.updateUser(oldUser, user);
+        log.info("Обновили данные о пользователе{}", user.getId());
+        return userDbStorage.update(newUser);
     }
 
-    public List<User> getUser() {
-        return userStorage.valueUsers();
+    public List<User> getUsers() {
+        log.info("Значение{}", userDbStorage.allUsers());
+        return userDbStorage.allUsers();
     }
 
-    private boolean isDuplicatedUserEmail(User user) {
-        List<String> usersEmail = userStorage.valueUsers().stream()
-                .map(User::getEmail)
-                .toList();
-
-        return usersEmail.contains(user.getEmail());
-    }
-
-    private long getNextId() {
-        long currentMaxId = userStorage.getUsersId()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+    private User checkUsers(Long user) {
+        return userDbStorage.getUser(user).orElseThrow(() -> {
+            log.error("Пользователь не найден: {}", user);
+            return new NotFoundException("Пользователь не найден: " + user);
+        });
     }
 }
